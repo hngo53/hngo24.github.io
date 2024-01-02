@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Game</title>
+    <style>
+        body {
+            font-family: 'Pacifico', cursive;
+            text-align: center;
+            background: linear-gradient(to right, #FF6B6B, #556270);
+            color: #ff7bbf; /* Pink with a hint of purple */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+        }
+
+        #game-container {
+            max-width: 600px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        #question {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        #answer-input {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            border: 2px solid #ff7bbf; /* Pink with a hint of purple */
+            border-radius: 5px;
+            color: #ff7bbf; /* Pink with a hint of purple */
+            transition: border-color 0.3s ease, color 0.3s ease;
+        }
+
+        #answer-input:focus {
+            border-color: #ffcc00; /* Yellow */
+            color: #ffcc00; /* Yellow */
+        }
+
+        #submit-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+            color: #ff7bbf; /* Pink with a hint of purple */
+        }
+
+        #birthday-message {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #ffcc00;
+            border-radius: 10px;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes firework {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) scale(0.2);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        .firework {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #ffcc00; /* Yellow */
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            transform-origin: center bottom;
+            opacity: 0;
+        }
+
+        .firework.color-1 {
+            background-color: #ffcc00; /* Yellow */
+        }
+
+        .firework.color-2 {
+            background-color: #ff7bbf; /* Pink with a hint of purple */
+        }
+
+        .firework.color-3 {
+            background-color: #4caf50; /* Green */
+        }
+
+        .firework.color-4 {
+            background-color: #556270; /* Deep purple */
+        }
+
+        .firework.color-5 {
+            background-color: #3f51b5; /* Indigo */
+        }
+
+        #hidden-button {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            width: 30px;
+            height: 30px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            outline: none;
+        }
+
+        #hidden-button img {
+            width: 100%;
+            height: 100%;
+            opacity: 0.2;
+        }
+
+        #hidden-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1 style="color: #ff7bbf;">Birthday Question</h1>
+        <div id="question">
+            <p>What lovely day is today ?</p>
+        </div>
+        <input type="text" id="answer-input" placeholder="Your Answer">
+        <button id="submit-button" onclick="checkAnswer()">Submit</button>
+        <div id="result"></div>
+        <div id="birthday-message">
+            <h2 style="color: #ff7bbf;">Happy Birthday!</h2>
+            <p style="color: #ff7bbf;">Wishing you a fantastic day filled with joy and celebration.</p>
+            <img src="image.jpg" alt="Birthday Person" />
+        </div>
+    </div>
+
+    <!-- Firework elements for correct answer celebration -->
+    <div class="firework color-1"></div>
+    <div class="firework color-2"></div>
+    <div class="firework color-3"></div>
+    <div class="firework color-4"></div>
+    <div class="firework color-5"></div>
+
+    <!-- Hidden button for the secret message -->
+    <button id="hidden-button" onclick="revealMessage()">
+        <img src="heart.png" alt="Hidden Heart">
+    </button>
+
+    <!-- Hidden message -->
+    <div id="hidden-message">
+        <p style="color: #ff7bbf; font-size: 18px;">Love you my girl! See you when I come to Germany</p>
+    </div>
+
+    <script>
+        // Function to check the user's answer
+        function checkAnswer() {
+            const userAnswer = document.getElementById('answer-input').value.toLowerCase();
+            const resultElement = document.getElementById('result');
+
+            if (userAnswer === 'my birthday') {
+                resultElement.textContent = 'Correct! Happy Birthday!';
+                document.getElementById('birthday-message').style.display = 'block';
+                celebrateCorrectAnswer();
+            } else {
+                resultElement.textContent = 'Incorrect. Try again!';
+            }
+        }
+
+        // Function to celebrate the correct answer with fireworks
+        function celebrateCorrectAnswer() {
+            const fireworkElements = document.querySelectorAll('.firework');
+            fireworkElements.forEach((firework, index) => {
+                setTimeout(() => {
+                    firework.style.left = `${Math.random() * window.innerWidth}px`;
+                    firework.style.opacity = '0.8';
+                    firework.style.animation = 'firework 1s ease-out';
+                }, index * 500);
+            });
+        }
+
+        // Function to reveal the hidden message
+        function revealMessage() {
+            const hiddenMessage = document.getElementById('hidden-message');
+            hiddenMessage.style.display = 'block';
+        }
+
+        // Call the initializeGame function when the page loads
+        window.onload = function() {
+            document.getElementById('game-container').style.animation = 'fadeIn 1s ease-out';
+        };
+    </script>
+</body>
+</html>
